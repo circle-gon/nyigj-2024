@@ -1,75 +1,56 @@
-import Spacer from "components/layout/Spacer.vue";
 import { jsx } from "features/feature";
-import { createResource, trackBest, trackOOMPS, trackTotal } from "features/resources/resource";
-import type { GenericTree } from "features/trees/tree";
-import { branchedResetPropagation, createTree } from "features/trees/tree";
-import { globalBus } from "game/events";
 import type { BaseLayer, GenericLayer } from "game/layers";
 import { createLayer } from "game/layers";
 import type { Player } from "game/player";
-import player from "game/player";
-import type { DecimalSource } from "util/bignum";
-import Decimal, { format, formatTime } from "util/bignum";
+import { computed } from "vue";
+import { createBar } from "features/bars/bar";
+import { Direction } from "util/common";
 import { render } from "util/vue";
-import { computed, toRaw } from "vue";
-import prestige from "./layers/prestige";
+import { format } from "util/bignum";
+import { createTabFamily } from "features/tabs/tabFamily";
+import { createTab } from "features/tabs/tab";
+import games from "./games";
+import "./style.css";
 
 /**
  * @hidden
  */
 export const main = createLayer("main", function (this: BaseLayer) {
-    const points = createResource<DecimalSource>(10);
-    const best = trackBest(points);
-    const total = trackTotal(points);
+    const pressure = computed(() => 10)
+    const maxPressure = computed(() => 100);
 
-    const pointGain = computed(() => {
-        // eslint-disable-next-line prefer-const
-        let gain = new Decimal(1);
-        return gain;
-    });
-    globalBus.on("update", diff => {
-        points.value = Decimal.add(points.value, Decimal.times(pointGain.value, diff));
-    });
-    const oomps = trackOOMPS(points, pointGain);
+    const pressureBar = createBar(() => ({
+        width: 400,
+        height: 50,
+        direction: Direction.Right,
+        progress: () => pressure.value / maxPressure.value,
+        display: jsx(() => 
+        <> 
+        <span style={{color: "red"}}>{format(pressure.value)}</span> / {format(maxPressure.value)} Pressure
+        </>),
+        fillStyle: {
+            "background-color": "grey"
+        }
+    }))
 
-    const tree = createTree(() => ({
-        nodes: [[prestige.treeNode]],
-        branches: [],
-        onReset() {
-            points.value = toRaw(this.resettingNode.value) === toRaw(prestige.treeNode) ? 0 : 10;
-            best.value = points.value;
-            total.value = points.value;
-        },
-        resetPropagation: branchedResetPropagation
-    })) as GenericTree;
+    const tabs = createTabFamily({
+        games: () => ({
+            tab: createTab(() => ({
+                display: games.display
+            })),
+            display: "Games"
+        })
+    })
 
     return {
-        name: "Tree",
-        links: tree.links,
+        name: "Main",
         display: jsx(() => (
             <>
-                {player.devSpeed === 0 ? <div>Game Paused</div> : null}
-                {player.devSpeed != null && player.devSpeed !== 0 && player.devSpeed !== 1 ? (
-                    <div>Dev Speed: {format(player.devSpeed)}x</div>
-                ) : null}
-                {player.offlineTime != null && player.offlineTime !== 0 ? (
-                    <div>Offline Time: {formatTime(player.offlineTime)}</div>
-                ) : null}
-                <div>
-                    {Decimal.lt(points.value, "1e1000") ? <span>You have </span> : null}
-                    <h2>{format(points.value)}</h2>
-                    {Decimal.lt(points.value, "1e1e6") ? <span> points</span> : null}
-                </div>
-                {Decimal.gt(pointGain.value, 0) ? <div>({oomps.value})</div> : null}
-                <Spacer />
-                {render(tree)}
+                {render(pressureBar)}
+                {render(tabs)}
             </>
         )),
-        points,
-        best,
-        total,
-        oomps,
-        tree
+        tabs
     };
 });
 
@@ -80,7 +61,7 @@ export const main = createLayer("main", function (this: BaseLayer) {
 export const getInitialLayers = (
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     player: Partial<Player>
-): Array<GenericLayer> => [main, prestige];
+): Array<GenericLayer> => [main, games];
 
 /**
  * A computed ref whose value is true whenever the game is over.

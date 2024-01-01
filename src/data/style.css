@@ -1,0 +1,23 @@
+.box {
+    display: flex;
+    flex-direction: column;
+    width: 120px;
+    height: 150px;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 20px;
+}
+
+.big-header {
+    font-size: 16px;
+}
+
+.action {
+    width: 100px;
+    border-radius: 5 15px;
+}
+
+.contain {
+    display: flex;
+    align-content: flex-start;
+}
