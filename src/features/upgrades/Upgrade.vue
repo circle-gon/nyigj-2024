@@ -106,7 +106,12 @@ export default defineComponent({
                                 Currently: <EffectDisplay />
                             </div>
                         ) : null}
-                        {bought.value ? null : <><br />{displayRequirements(requirements.value)}</>}
+                        {bought.value ? null : (
+                            <>
+                                <br />
+                                {displayRequirements(requirements.value)}
+                            </>
+                        )}
                     </span>
                 ))
             );

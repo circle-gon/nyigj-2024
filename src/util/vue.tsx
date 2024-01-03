@@ -22,6 +22,8 @@ import {
     watchEffect
 } from "vue";
 import { camelToKebab } from "./common";
+import themes from "data/themes";
+import settings from "game/settings";
 
 export function coerceComponent(
     component: CoercableComponent,
@@ -66,6 +68,23 @@ export function renderRow(...objects: (VueFeature | CoercableComponent)[]): JSX.
 
 export function renderCol(...objects: (VueFeature | CoercableComponent)[]): JSX.Element {
     return <Col>{objects.map(render)}</Col>;
+}
+
+export function renderGrid(...rows: (VueFeature | CoercableComponent)[][]): JSX.Element {
+    return (
+        <div class="table-grid">
+            {rows.map(row => (
+                <div
+                    class={{
+                        ["row-grid"]: true,
+                        ["mergeAdjacent"]: themes[settings.theme].mergeAdjacent
+                    }}
+                >
+                    {row.map(render)}
+                </div>
+            ))}
+        </div>
+    );
 }
 
 export function renderJSX(object: VueFeature | CoercableComponent): JSX.Element {

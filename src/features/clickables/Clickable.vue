@@ -1,10 +1,7 @@
 <template>
     <button
         v-if="isVisible(visibility)"
-        :style="[
-            { visibility: isHidden(visibility) ? 'hidden' : undefined },
-            unref(style) ?? []
-        ]"
+        :style="[{ visibility: isHidden(visibility) ? 'hidden' : undefined }, unref(style) ?? []]"
         @click="onClick"
         @mousedown="start"
         @mouseleave="stop"

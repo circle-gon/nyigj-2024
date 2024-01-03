@@ -1,5 +1,7 @@
 <template>
-    <div v-if="appErrors.length > 0" class="error-container" :style="theme"><Error :errors="appErrors" /></div>
+    <div v-if="appErrors.length > 0" class="error-container" :style="theme">
+        <Error :errors="appErrors" />
+    </div>
     <template v-else>
         <div id="modal-root" :style="theme" />
         <div class="app" :style="theme" :class="{ useHeader }">
@@ -37,7 +39,7 @@ const showTPS = toRef(settings, "showTPS");
 const appErrors = toRef(state, "errors");
 
 const gameComponent = computed(() => {
-    return coerceComponent(jsx(() => (<>{gameComponents.map(render)}</>)));
+    return coerceComponent(jsx(() => <>{gameComponents.map(render)}</>));
 });
 </script>
 

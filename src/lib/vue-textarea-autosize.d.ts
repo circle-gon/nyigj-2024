@@ -1,1 +1,1 @@
-declare module 'vue-textarea-autosize';
+declare module "vue-textarea-autosize";

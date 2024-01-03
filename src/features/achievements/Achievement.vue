@@ -30,7 +30,16 @@ import Node from "components/Node.vue";
 import { isHidden, isVisible, jsx, Visibility } from "features/feature";
 import { displayRequirements, Requirements } from "game/requirements";
 import { coerceComponent, isCoercableComponent, processedPropType, unwrapRef } from "util/vue";
-import { Component, defineComponent, shallowRef, StyleValue, toRefs, unref, UnwrapRef, watchEffect } from "vue";
+import {
+    Component,
+    defineComponent,
+    shallowRef,
+    StyleValue,
+    toRefs,
+    unref,
+    UnwrapRef,
+    watchEffect
+} from "vue";
 import { GenericAchievement } from "./achievement";
 
 export default defineComponent({
@@ -39,7 +48,11 @@ export default defineComponent({
             type: processedPropType<Visibility | boolean>(Number, Boolean),
             required: true
         },
-        display: processedPropType<UnwrapRef<GenericAchievement["display"]>>(Object, String, Function),
+        display: processedPropType<UnwrapRef<GenericAchievement["display"]>>(
+            Object,
+            String,
+            Function
+        ),
         earned: {
             type: processedPropType<boolean>(Boolean),
             required: true
@@ -74,11 +87,16 @@ export default defineComponent({
                 comp.value = coerceComponent(currDisplay);
                 return;
             }
-            const Requirement = coerceComponent(currDisplay.requirement ? currDisplay.requirement : jsx(() => displayRequirements(unwrapRef(requirements) ?? [])), "h3");
+            const Requirement = coerceComponent(
+                currDisplay.requirement
+                    ? currDisplay.requirement
+                    : jsx(() => displayRequirements(unwrapRef(requirements) ?? [])),
+                "h3"
+            );
             const EffectDisplay = coerceComponent(currDisplay.effectDisplay || "", "b");
-            const OptionsDisplay = unwrapRef(earned) ?
-                coerceComponent(currDisplay.optionsDisplay || "", "span") :
-                "";
+            const OptionsDisplay = unwrapRef(earned)
+                ? coerceComponent(currDisplay.optionsDisplay || "", "span")
+                : "";
             comp.value = coerceComponent(
                 jsx(() => (
                     <span>

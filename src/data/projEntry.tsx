@@ -3,54 +3,103 @@ import type { BaseLayer, GenericLayer } from "game/layers";
 import { createLayer } from "game/layers";
 import type { Player } from "game/player";
 import { computed } from "vue";
-import { createBar } from "features/bars/bar";
-import { Direction } from "util/common";
-import { render } from "util/vue";
-import { format } from "util/bignum";
-import { createTabFamily } from "features/tabs/tabFamily";
-import { createTab } from "features/tabs/tab";
-import games from "./games";
+import { renderGrid } from "util/vue";
+import { createAdditiveModifier, createSequentialModifier } from "game/modifiers";
+import { createUpgrade } from "features/upgrades/upgrade";
+import { createResource } from "features/resources/resource";
+import { createCostRequirement } from "game/requirements";
+import { noPersist } from "game/persistence";
+import Decimal, { DecimalSource, format, formatWhole } from "util/bignum";
 import "./style.css";
+import MainDisplayVue from "features/resources/MainDisplay.vue";
 
 /**
  * @hidden
  */
+
+const brown = "brown";
+
 export const main = createLayer("main", function (this: BaseLayer) {
-    const pressure = computed(() => 10)
-    const maxPressure = computed(() => 100);
+    const wood = createResource<DecimalSource>(0, "wood");
 
-    const pressureBar = createBar(() => ({
-        width: 400,
-        height: 50,
-        direction: Direction.Right,
-        progress: () => pressure.value / maxPressure.value,
-        display: jsx(() => 
-        <> 
-        <span style={{color: "red"}}>{format(pressure.value)}</span> / {format(maxPressure.value)} Pressure
-        </>),
-        fillStyle: {
-            "background-color": "grey"
+    const boxLengthModifier = createSequentialModifier(() => [
+        createAdditiveModifier(() => ({
+            addend: 1,
+            description: "Make a Box",
+            enabled: () => makeTheBox.bought.value
+        }))
+    ]);
+
+    const boxWidthModifier = createSequentialModifier(() => [
+        createAdditiveModifier(() => ({
+            addend: 1,
+            description: "Make a Box",
+            enabled: () => makeTheBox.bought.value
+        }))
+    ]);
+
+    const boxHeightModifier = createSequentialModifier(() => [
+        createAdditiveModifier(() => ({
+            addend: 1,
+            description: "Make a Box",
+            enabled: () => makeTheBox.bought.value
+        }))
+    ]);
+
+    const boxWidth = computed(() => boxWidthModifier.apply(0));
+    const boxLength = computed(() => boxLengthModifier.apply(0));
+    const boxHeight = computed(() => boxHeightModifier.apply(0));
+
+    const makeTheBox = createUpgrade(() => ({
+        requirements: createCostRequirement(() => ({
+            resource: noPersist(wood),
+            cost: 0
+        })),
+        display: {
+            title: "Make a Box",
+            description: "Unlock the box."
         }
-    }))
+    }));
 
-    const tabs = createTabFamily({
-        games: () => ({
-            tab: createTab(() => ({
-                display: games.display
-            })),
-            display: "Games"
-        })
-    })
+    const doubler = createUpgrade(() => ({
+        requirements: createCostRequirement(() => ({
+            resource: noPersist(wood),
+            cost: 0
+        })),
+        display: {
+            title: "Bigger Box",
+            description: "Double the dimensions of the box."
+        }
+    }));
+
+    const upgrades = [[makeTheBox, doubler]];
+
+    const prod = computed(() => Decimal.mul(boxWidth.value, boxLength.value).mul(boxHeight.value));
 
     return {
         name: "Main",
+        wood,
+        upgrades,
         display: jsx(() => (
             <>
-                {render(pressureBar)}
-                {render(tabs)}
+                <MainDisplayVue resource={wood} color={brown} />
+
+                {makeTheBox.bought.value ? (
+                    <>
+                        The box is currently {formatWhole(boxWidth.value)}
+                        <span class="small"> x </span>
+                        {formatWhole(boxLength.value)}
+                        <span class="small"> x </span>
+                        {formatWhole(boxHeight.value)}, giving {format(prod.value)} wood per second.
+                        <br />
+                    </>
+                ) : null}
+
+                <br />
+                <br />
+                {renderGrid(...upgrades)}
             </>
-        )),
-        tabs
+        ))
     };
 });
 
@@ -61,7 +110,7 @@ export const main = createLayer("main", function (this: BaseLayer) {
 export const getInitialLayers = (
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     player: Partial<Player>
-): Array<GenericLayer> => [main, games];
+): Array<GenericLayer> => [main];
 
 /**
  * A computed ref whose value is true whenever the game is over.

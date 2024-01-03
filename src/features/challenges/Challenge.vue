@@ -130,7 +130,12 @@ export default defineComponent({
             }
             const Title = coerceComponent(currDisplay.title || "", "h3");
             const Description = coerceComponent(currDisplay.description, "div");
-            const Goal = coerceComponent(currDisplay.goal != null ? currDisplay.goal : jsx(() => displayRequirements(unwrapRef(requirements) ?? [])), "h3");
+            const Goal = coerceComponent(
+                currDisplay.goal != null
+                    ? currDisplay.goal
+                    : jsx(() => displayRequirements(unwrapRef(requirements) ?? [])),
+                "h3"
+            );
             const Reward = coerceComponent(currDisplay.reward || "");
             const EffectDisplay = coerceComponent(currDisplay.effectDisplay || "");
             comp.value = coerceComponent(

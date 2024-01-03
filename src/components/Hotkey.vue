@@ -2,11 +2,11 @@
 <!-- eslint-disable prettier/prettier -->
 <template>
     <template v-if="isCtrl"
-        ><div class="key">Ctrl</div
-        >+</template
+        ><div class="key">Ctrl</div>
+        +</template
     ><template v-if="isShift"
-        ><div class="key">Shift</div
-        >+</template
+        ><div class="key">Shift</div>
+        +</template
     >
     <div class="key">{{ key }}</div>
 </template>

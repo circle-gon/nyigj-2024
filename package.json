@@ -46,7 +46,7 @@
     "@vue/eslint-config-typescript": "^10.0.0",
     "eslint": "^8.6.0",
     "jsdom": "^20.0.0",
-    "prettier": "^2.5.1",
+    "prettier": "^2.8.8",
     "typescript": "^5.0.2",
     "vitest": "^0.29.3",
     "vue-tsc": "^0.38.1"
